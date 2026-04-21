@@ -1,0 +1,14 @@
+# 実行結果（CSV・GIF）
+output/
+
+# Claude Code ローカル設定
+.claude/
+
+# Python キャッシュ
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# OS
+.DS_Store
