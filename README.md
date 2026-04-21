@@ -68,25 +68,8 @@ cellular-complexity/
   src/cellular-complexity/
     full_rule_pareto_search.py   # 探索エンジン（指標計算・パレート抽出）
     visualize.py                 # ルール可視化・GIF 生成
-  tests/
-    conftest.py
-    test_full_rule_pareto_search.py
   output/                        # 実行結果（git 管理外）
-  report/
-    report_240621.md             # 実験レポート
 ```
-
-## テスト
-
-```bash
-pytest tests/
-```
-
-69件のテストで以下を検証している:
-- ルール定義・近傍カウント・1ステップ更新の正確性
-- 各指標（C/O/S）の数理的性質
-- Conway's Life がランダムノイズ維持ルールよりも C・S で高スコアであること
-- パレート最適の定義の整合性
 
 ## 実装の特徴
 
