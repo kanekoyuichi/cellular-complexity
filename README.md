@@ -1,6 +1,6 @@
 # cellular-complexity
 
-> Japanese version: [README.ja.md](/home/yuichi/Projects/ai-ws/projects/cellular-complexity/README.ja.md)
+> Japanese version: [README.ja.md](https://github.com/kanekoyuichi/cellular-complexity/blob/main/README.ja.md)
 
 A tool that exhaustively searches all **262,144** rule combinations of two-dimensional binary cellular automata (Life-like CA) and extracts structurally complex rules as a Pareto-optimal set.
 
