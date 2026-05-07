@@ -1,56 +1,58 @@
 # cellular-complexity
 
-2次元二値セル・オートマトン（ライフゲーム系）の全ルール **262,144 通り**を探索し、構造的複雑性の高いルールをパレート最適集合として抽出するツール。
+> Japanese version: [README.ja.md](/home/yuichi/Projects/ai-ws/projects/cellular-complexity/README.ja.md)
 
-## 背景
+A tool that exhaustively searches all **262,144** rule combinations of two-dimensional binary cellular automata (Life-like CA) and extracts structurally complex rules as a Pareto-optimal set.
 
-ライフゲーム（Conway's Game of Life）のようなセル・オートマトンは、単純なルールから複雑な振る舞いを生み出す。Birth/Survival 条件の組み合わせは 512×512 = 262,144 通りある。これらすべてを評価し、「Conway's Life に近い複雑性」を持つルールを探索する。
+## Background
 
-## 指標
+Cellular automata such as Conway's Game of Life produce complex behavior from simple rules. The number of possible Birth/Survival condition combinations is 512×512 = 262,144. This tool evaluates all of them and searches for rules that exhibit complexity similar to Conway's Life.
 
-3つの指標を多目的最適化（パレート最適）で同時最大化する。
+## Metrics
 
-| 指標 | 意味 | 高いとき |
-|------|------|---------|
-| **C** (Clustering) | 空間自己相関。生セルが近くにまとまる傾向 | セルが集積してパターンを形成 |
-| **O** (Organization) | 自己組織化。後半で変化率が低下する度合い | カオスから秩序へ移行 |
-| **S** (Structure) | パターン構造度。少数パターンが支配する度合い | 特定パターンが整理された形で出現 |
+Three metrics are simultaneously maximized via multi-objective optimization (Pareto optimality).
 
-これらはランダムノイズ維持ルールでは低くなり、Conway's Life のような構造生成ルールで高くなるよう設計されている。
+| Metric | Description | When high |
+|--------|-------------|-----------|
+| **C** (Clustering) | Spatial autocorrelation. Tendency of live cells to cluster together | Cells aggregate and form patterns |
+| **O** (Organization) | Self-organization. Degree to which the rate of change decreases in the latter half of simulation | Transition from chaos to order |
+| **S** (Structure) | Pattern structure. Degree to which a small number of patterns dominate | Specific patterns appear in an organized form |
 
-## インストール
+These metrics are designed to be low for rules that maintain random noise and high for structure-generating rules like Conway's Life.
+
+## Installation
 
 ```bash
 pip install numpy matplotlib pillow
 ```
 
-Python 3.10 以上、NumPy 1.24 以上を推奨。
+Python 3.10 or higher and NumPy 1.24 or higher are recommended.
 
-## 使い方
+## Usage
 
-### 全ルール探索
+### Full Rule Search
 
 ```bash
 cd src/cellular-complexity
 python3 full_rule_pareto_search.py --output-dir ../../output
 ```
 
-オプション:
+Options:
 
-| オプション | デフォルト | 説明 |
-|-----------|-----------|------|
-| `--size` | 32 | 盤面サイズ（正方形） |
-| `--steps` | 50 | 1ルールあたりの最大ステップ数 |
-| `--trials` | 1 | 1ルールあたりの試行回数 |
-| `--init-live-prob` | 0.5 | 初期生セル確率 |
-| `--workers` | CPU数 | 並列プロセス数 |
-| `--output-dir` | . | 出力先ディレクトリ |
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--size` | 32 | Board size (square) |
+| `--steps` | 50 | Maximum steps per rule |
+| `--trials` | 1 | Number of trials per rule |
+| `--init-live-prob` | 0.5 | Initial live cell probability |
+| `--workers` | CPU count | Number of parallel processes |
+| `--output-dir` | . | Output directory |
 
-出力ファイル:
-- `all_rules_results.csv` — 全 262,144 ルールの指標値
-- `pareto_front_results.csv` — パレート最適なルール群
+Output files:
+- `all_rules_results.csv` — Metric values for all 262,144 rules
+- `pareto_front_results.csv` — Pareto-optimal rules
 
-### 可視化
+### Visualization
 
 ```bash
 python3 visualize.py B3/S23
@@ -58,30 +60,30 @@ python3 visualize.py B3/S23 --size 64 --steps 200
 python3 visualize.py B3/S23 --output output/conway.gif
 ```
 
-DISPLAY がある環境ではインタラクティブ表示（Space: 一時停止、R: リセット）。  
-ない環境（SSH 接続など）では自動的に `output/` へ GIF を保存する。
+In environments with a display, shows an interactive viewer (Space: pause, R: reset).
+In headless environments (e.g. SSH), automatically saves a GIF to `output/`.
 
-## ファイル構成
+## File Structure
 
 ```
 cellular-complexity/
   src/cellular-complexity/
-    full_rule_pareto_search.py   # 探索エンジン（指標計算・パレート抽出）
-    visualize.py                 # ルール可視化・GIF 生成
-  output/                        # 実行結果（git 管理外）
+    full_rule_pareto_search.py   # Search engine (metric calculation, Pareto extraction)
+    visualize.py                 # Rule visualization and GIF generation
+  output/                        # Results (not tracked by git)
 ```
 
-## 実装の特徴
+## Implementation Notes
 
-- **高速化**: `np.pad` + スライス加算による近傍カウント、`sliding_window_view` + ビットパックによる 3x3 パターン集計
-- **並列化**: `multiprocessing.Pool` で全 CPU コアを使用
-- **省メモリ**: CSV へのストリーミング書き込みで全件をメモリに保持しない
-- **再現性**: 乱数シード固定で結果を再現可能
+- **Performance**: Neighbor counting via `np.pad` + slice addition; 3x3 pattern aggregation via `sliding_window_view` + bit packing
+- **Parallelism**: `multiprocessing.Pool` utilizing all CPU cores
+- **Memory efficiency**: Streaming CSV writes avoid holding all results in memory
+- **Reproducibility**: Fixed random seed ensures reproducible results
 
-## パレート最適の定義
+## Pareto Optimality Definition
 
-ルール `a` がルール `b` を支配する条件:
-- C, O, S のすべてで `a >= b`
-- かつ少なくとも1つで `a > b`
+Rule `a` dominates rule `b` if:
+- `a >= b` on all three metrics (C, O, S)
+- and `a > b` on at least one metric
 
-いずれのルールにも支配されないルールの集合をパレート最適集合とする。
+The Pareto-optimal set consists of all rules that are not dominated by any other rule.
